@@ -1,8 +1,8 @@
 export interface LsEntry {
   filename: string;
-  flags?: string;
-  mode?: number;
-  type?:
+  flags: string;
+  mode: number;
+  type:
     | "file"
     | "directory"
     | "symlink"
@@ -12,17 +12,17 @@ export interface LsEntry {
     | "socket";
   links?: number;
   parent?: string;
-  owner?: string;
-  group?: string;
-  size?: number | string;
-  date?: string;
+  owner: string;
+  group: string;
+  size: number | string;
+  date: string;
   epoch?: number;
   epoch_utc?: number;
   link_to?: string;
 }
 
 export interface LsStreamEntry extends LsEntry {
-  size?: number | string;
+  size: number | string;
   _jc_meta?: {
     success: boolean;
     error?: string;
@@ -32,7 +32,6 @@ export interface LsStreamEntry extends LsEntry {
 
 interface ParseOptions {
   raw?: boolean;
-  quiet?: boolean;
   ignoreExceptions?: boolean;
 }
 
@@ -109,7 +108,7 @@ class LsUtils {
    * Extract file type from permission flags (first character)
    */
   static getFileType(
-    flags: string,
+    flags: string
   ):
     | "file"
     | "directory"
@@ -271,12 +270,21 @@ export class LsParser {
     // Check if -l was used to parse extra data
     // Look for the first line that matches permission format to determine if this is detailed format
     const hasDetailedFormat = linedata.some(
-      (line) => line && this.PERMISSION_REGEX.test(line),
+      (line) => line && this.PERMISSION_REGEX.test(line)
     );
 
     if (hasDetailedFormat) {
       for (const entry of linedata) {
-        const outputLine: LsEntry = { filename: "" };
+        const outputLine: LsEntry = {
+          filename: "",
+          flags: "",
+          mode: 0,
+          type: "file",
+          owner: "",
+          group: "",
+          size: 0,
+          date: "",
+        };
 
         if (!this.PERMISSION_REGEX.test(entry) && entry.endsWith(":")) {
           parent = entry.slice(0, -1);
@@ -359,7 +367,7 @@ export class LsParser {
         } else if (parsedLine[5] && parsedLine[6] && parsedLine[7]) {
           // Standard format: parsedLine[5] = month, parsedLine[6] = day, parsedLine[7] = time, parsedLine[8] = filename
           outputLine.date = [parsedLine[5], parsedLine[6], parsedLine[7]].join(
-            " ",
+            " "
           );
           // For standard format, filename is in parsedLine[8]
           if (parsedLine[8]) {
@@ -386,7 +394,16 @@ export class LsParser {
     } else {
       // Simple format without -l
       for (const entry of linedata) {
-        const outputLine: LsEntry = { filename: "" };
+        const outputLine: LsEntry = {
+          filename: "",
+          flags: "",
+          mode: 0,
+          type: "file",
+          owner: "",
+          group: "",
+          size: 0,
+          date: "",
+        };
 
         if (entry === "") {
           nextIsParent = true;
@@ -477,7 +494,7 @@ export class LsStreamingParser {
    */
   static *parse(
     lines: Iterable<string>,
-    options: ParseOptions = {},
+    options: ParseOptions = {}
   ): Generator<LsStreamEntry, void, unknown> {
     const { raw = false, ignoreExceptions = false } = options;
     let parent = "";
@@ -517,7 +534,16 @@ export class LsStreamingParser {
         // Parse fields - manually implement Python's maxsplit=8 behavior
         const allParts = line.trim().split(/\s+/);
         const parsedLine: string[] = [];
-        const outputLine: LsStreamEntry = { filename: "" };
+        const outputLine: LsStreamEntry = {
+          filename: "",
+          flags: "",
+          mode: 0,
+          type: "file",
+          owner: "",
+          group: "",
+          size: 0,
+          date: "",
+        };
 
         // Take first 8 parts directly
         for (let i = 0; i < 8 && i < allParts.length; i++) {
@@ -555,7 +581,7 @@ export class LsStreamingParser {
         } else if (parsedLine[5] && parsedLine[6] && parsedLine[7]) {
           // Standard format: parsedLine[5] = month, parsedLine[6] = day, parsedLine[7] = time, parsedLine[8] = filename
           outputLine.date = [parsedLine[5], parsedLine[6], parsedLine[7]].join(
-            " ",
+            " "
           );
           // For standard format, filename is in parsedLine[8]
           if (parsedLine[8]) {
@@ -582,6 +608,13 @@ export class LsStreamingParser {
         if (ignoreExceptions) {
           const errorEntry: LsStreamEntry = {
             filename: "",
+            flags: "",
+            mode: 0,
+            type: "file",
+            owner: "",
+            group: "",
+            size: 0,
+            date: "",
             _jc_meta: {
               success: false,
               error: error instanceof Error ? error.message : String(error),
@@ -617,7 +650,7 @@ export function parse(data: string, options?: ParseOptions): LsEntry[] {
  */
 export function parseStreaming(
   lines: Iterable<string>,
-  options?: ParseOptions,
+  options?: ParseOptions
 ): Generator<LsStreamEntry, void, unknown> {
   return LsStreamingParser.parse(lines, options);
 }
