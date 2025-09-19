@@ -2,7 +2,14 @@ export interface LsEntry {
   filename: string;
   flags?: string;
   mode?: number;
-  type?: "file" | "directory" | "symlink" | "block" | "character" | "pipe" | "socket";
+  type?:
+    | "file"
+    | "directory"
+    | "symlink"
+    | "block"
+    | "character"
+    | "pipe"
+    | "socket";
   links?: number;
   parent?: string;
   owner?: string;
@@ -102,8 +109,16 @@ class LsUtils {
    * Extract file type from permission flags (first character)
    */
   static getFileType(
-    flags: string
-  ): "file" | "directory" | "symlink" | "block" | "character" | "pipe" | "socket" | undefined {
+    flags: string,
+  ):
+    | "file"
+    | "directory"
+    | "symlink"
+    | "block"
+    | "character"
+    | "pipe"
+    | "socket"
+    | undefined {
     if (!flags || flags.length === 0) {
       return undefined;
     }
@@ -256,7 +271,7 @@ export class LsParser {
     // Check if -l was used to parse extra data
     // Look for the first line that matches permission format to determine if this is detailed format
     const hasDetailedFormat = linedata.some(
-      (line) => line && this.PERMISSION_REGEX.test(line)
+      (line) => line && this.PERMISSION_REGEX.test(line),
     );
 
     if (hasDetailedFormat) {
@@ -344,7 +359,7 @@ export class LsParser {
         } else if (parsedLine[5] && parsedLine[6] && parsedLine[7]) {
           // Standard format: parsedLine[5] = month, parsedLine[6] = day, parsedLine[7] = time, parsedLine[8] = filename
           outputLine.date = [parsedLine[5], parsedLine[6], parsedLine[7]].join(
-            " "
+            " ",
           );
           // For standard format, filename is in parsedLine[8]
           if (parsedLine[8]) {
@@ -462,7 +477,7 @@ export class LsStreamingParser {
    */
   static *parse(
     lines: Iterable<string>,
-    options: ParseOptions = {}
+    options: ParseOptions = {},
   ): Generator<LsStreamEntry, void, unknown> {
     const { raw = false, ignoreExceptions = false } = options;
     let parent = "";
@@ -540,7 +555,7 @@ export class LsStreamingParser {
         } else if (parsedLine[5] && parsedLine[6] && parsedLine[7]) {
           // Standard format: parsedLine[5] = month, parsedLine[6] = day, parsedLine[7] = time, parsedLine[8] = filename
           outputLine.date = [parsedLine[5], parsedLine[6], parsedLine[7]].join(
-            " "
+            " ",
           );
           // For standard format, filename is in parsedLine[8]
           if (parsedLine[8]) {
@@ -593,16 +608,16 @@ export default {
 /**
  * Convenience function to parse ls output
  */
-export function parseLs(data: string, options?: ParseOptions): LsEntry[] {
+export function parse(data: string, options?: ParseOptions): LsEntry[] {
   return LsParser.parse(data, options);
 }
 
 /**
  * Convenience function to parse ls output as stream
  */
-export function parseLsStreaming(
+export function parseStreaming(
   lines: Iterable<string>,
-  options?: ParseOptions
+  options?: ParseOptions,
 ): Generator<LsStreamEntry, void, unknown> {
   return LsStreamingParser.parse(lines, options);
 }

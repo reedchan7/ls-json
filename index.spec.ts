@@ -1,4 +1,4 @@
-import { parseLs } from "./index";
+import { parse } from "./index";
 import { describe, it, expect } from "vitest";
 
 describe("ls-json tests", () => {
@@ -66,19 +66,19 @@ drwxr-xr-x  12 reedchan  staff   384B Sep 19 14:51 node_modules
 -rw-r--r--   1 reedchan  staff   366B Sep 19 14:52 vitest.config.ts`;
 
   it("should parse ls output to json v1", () => {
-    const result = parseLs(lsOutput1);
+    const result = parse(lsOutput1);
     console.log(result);
     expect(result).toBeDefined();
   });
 
   it("should parse ls output to json v2", () => {
-    const result = parseLs(lsOutput2);
+    const result = parse(lsOutput2);
     console.log(result);
     expect(result).toBeDefined();
   });
 
   it("should parse ls output to json v3", () => {
-    const result = parseLs(lsOutput3);
+    const result = parse(lsOutput3);
     console.log(result);
     expect(result).toBeDefined();
   });
