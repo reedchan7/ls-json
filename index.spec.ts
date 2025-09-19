@@ -82,4 +82,58 @@ drwxr-xr-x  12 reedchan  staff   384B Sep 19 14:51 node_modules
     console.log(result);
     expect(result).toBeDefined();
   });
+
+  it("should handle octal permissions correctly including leading zeros", () => {
+    const lsOutputWithSpecialPerms = `total 32
+----------   1 user  user   1024 Sep 19 14:51 no_perms.txt
+-rw-------   1 user  user   2048 Sep 19 14:52 owner_only.txt
+-rw-rw----   1 user  user   3072 Sep 19 14:53 owner_group.txt
+-rw-rw-rw-   1 user  user   4096 Sep 19 14:54 all_read_write.txt
+---x--x--x   1 user  user   5120 Sep 19 14:55 execute_only.txt
+drwx------   2 user  user   4096 Sep 19 14:56 private_dir`;
+
+    const result = parse(lsOutputWithSpecialPerms);
+    console.log("Special permissions:", result);
+    
+    expect(result).toBeDefined();
+    expect(result.length).toBe(6);
+    
+    // Test different permission modes
+    const noPerms = result.find(entry => entry.filename === 'no_perms.txt');
+    expect(noPerms?.mode).toBe('000'); // 000 permissions
+    
+    const ownerOnly = result.find(entry => entry.filename === 'owner_only.txt');
+    expect(ownerOnly?.mode).toBe('600'); // rw-------
+    
+    const ownerGroup = result.find(entry => entry.filename === 'owner_group.txt');
+    expect(ownerGroup?.mode).toBe('660'); // rw-rw----
+    
+    const allReadWrite = result.find(entry => entry.filename === 'all_read_write.txt');
+    expect(allReadWrite?.mode).toBe('666'); // rw-rw-rw-
+    
+    const executeOnly = result.find(entry => entry.filename === 'execute_only.txt');
+    expect(executeOnly?.mode).toBe('111'); // --x--x--x
+    
+    const privateDir = result.find(entry => entry.filename === 'private_dir');
+    expect(privateDir?.mode).toBe('700'); // drwx------
+  });
+
+  it("should handle permissions with leading zeros correctly", () => {
+    const lsOutputWithLeadingZeros = `total 16
+-------rwx   1 user  user   1024 Sep 19 14:51 others_only.txt
+----rw-rw-   1 user  user   2048 Sep 19 14:52 group_others.txt`;
+
+    const result = parse(lsOutputWithLeadingZeros);
+    console.log("Leading zeros:", result);
+    
+    expect(result).toBeDefined();
+    expect(result.length).toBe(2);
+    
+    // Test modes that would have leading zeros in octal
+    const othersOnly = result.find(entry => entry.filename === 'others_only.txt');
+    expect(othersOnly?.mode).toBe('007'); // -------rwx -> 007
+    
+    const groupOthers = result.find(entry => entry.filename === 'group_others.txt');
+    expect(groupOthers?.mode).toBe('066'); // ----rw-rw- -> 066
+  });
 });

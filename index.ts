@@ -1,7 +1,7 @@
 export interface LsEntry {
   filename: string;
   flags: string;
-  mode: number;
+  mode: string;
   type:
     | "file"
     | "directory"
@@ -76,16 +76,17 @@ class LsUtils {
   }
 
   /**
-   * Convert permission string to octal mode (e.g., "rwxr-xr-x" -> 755)
+   * Convert permission string to octal mode string (e.g., "rwxr-xr-x" -> "755")
+   * Returns 3-digit octal string with leading zeros preserved (e.g., "022", "077")
    */
-  static permissionToMode(permission: string): number | undefined {
+  static permissionToMode(permission: string): string | undefined {
     if (!permission || permission.length < 9) {
       return undefined;
     }
 
     // Extract permission part (skip first char which is file type)
     const permStr = permission.slice(1, 10);
-    let mode = 0;
+    let mode = "";
 
     // Process in groups of 3: owner, group, other
     for (let i = 0; i < 9; i += 3) {
@@ -98,7 +99,7 @@ class LsUtils {
           ? 1
           : 0); // execute
 
-      mode = mode * 10 + groupValue;
+      mode += groupValue.toString();
     }
 
     return mode;
@@ -278,7 +279,7 @@ export class LsParser {
         const outputLine: LsEntry = {
           filename: "",
           flags: "",
-          mode: 0,
+          mode: "000",
           type: "file",
           owner: "",
           group: "",
@@ -397,7 +398,7 @@ export class LsParser {
         const outputLine: LsEntry = {
           filename: "",
           flags: "",
-          mode: 0,
+          mode: "000",
           type: "file",
           owner: "",
           group: "",
@@ -537,7 +538,7 @@ export class LsStreamingParser {
         const outputLine: LsStreamEntry = {
           filename: "",
           flags: "",
-          mode: 0,
+          mode: "000",
           type: "file",
           owner: "",
           group: "",
@@ -609,7 +610,7 @@ export class LsStreamingParser {
           const errorEntry: LsStreamEntry = {
             filename: "",
             flags: "",
-            mode: 0,
+            mode: "000",
             type: "file",
             owner: "",
             group: "",
