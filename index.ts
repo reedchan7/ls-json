@@ -33,6 +33,7 @@ export interface LsStreamEntry extends LsEntry {
 interface ParseOptions {
   raw?: boolean;
   ignoreExceptions?: boolean;
+  showDotsDir?: boolean;
 }
 
 /**
@@ -109,7 +110,7 @@ class LsUtils {
    * Extract file type from permission flags (first character)
    */
   static getFileType(
-    flags: string
+    flags: string,
   ):
     | "file"
     | "directory"
@@ -219,7 +220,7 @@ export class LsParser {
    * Parse ls command output
    */
   static parse(data: string, options: ParseOptions = {}): LsEntry[] {
-    const { raw = false } = options;
+    const { raw = false, showDotsDir = false } = options;
 
     if (!LsUtils.hasData(data)) {
       return [];
@@ -271,7 +272,7 @@ export class LsParser {
     // Check if -l was used to parse extra data
     // Look for the first line that matches permission format to determine if this is detailed format
     const hasDetailedFormat = linedata.some(
-      (line) => line && this.PERMISSION_REGEX.test(line)
+      (line) => line && this.PERMISSION_REGEX.test(line),
     );
 
     if (hasDetailedFormat) {
@@ -368,7 +369,7 @@ export class LsParser {
         } else if (parsedLine[5] && parsedLine[6] && parsedLine[7]) {
           // Standard format: parsedLine[5] = month, parsedLine[6] = day, parsedLine[7] = time, parsedLine[8] = filename
           outputLine.date = [parsedLine[5], parsedLine[6], parsedLine[7]].join(
-            " "
+            " ",
           );
           // For standard format, filename is in parsedLine[8]
           if (parsedLine[8]) {
@@ -427,7 +428,16 @@ export class LsParser {
       }
     }
 
-    return raw ? rawOutput : this._process(rawOutput);
+    let result = raw ? rawOutput : this._process(rawOutput);
+
+    // Filter out . and .. entries if showDotsDir is disabled
+    if (!showDotsDir) {
+      result = result.filter(
+        (entry) => entry.filename !== "." && entry.filename !== "..",
+      );
+    }
+
+    return result;
   }
 }
 
@@ -495,9 +505,13 @@ export class LsStreamingParser {
    */
   static *parse(
     lines: Iterable<string>,
-    options: ParseOptions = {}
+    options: ParseOptions = {},
   ): Generator<LsStreamEntry, void, unknown> {
-    const { raw = false, ignoreExceptions = false } = options;
+    const {
+      raw = false,
+      ignoreExceptions = false,
+      showDotsDir = false,
+    } = options;
     let parent = "";
 
     for (const line of lines) {
@@ -582,7 +596,7 @@ export class LsStreamingParser {
         } else if (parsedLine[5] && parsedLine[6] && parsedLine[7]) {
           // Standard format: parsedLine[5] = month, parsedLine[6] = day, parsedLine[7] = time, parsedLine[8] = filename
           outputLine.date = [parsedLine[5], parsedLine[6], parsedLine[7]].join(
-            " "
+            " ",
           );
           // For standard format, filename is in parsedLine[8]
           if (parsedLine[8]) {
@@ -602,6 +616,14 @@ export class LsStreamingParser {
 
         if (parent) {
           outputLine.parent = parent;
+        }
+
+        // Skip . and .. entries if showDotsDir is disabled
+        if (
+          !showDotsDir &&
+          (outputLine.filename === "." || outputLine.filename === "..")
+        ) {
+          continue;
         }
 
         yield raw ? outputLine : this._processEntry(outputLine);
@@ -651,7 +673,7 @@ export function parse(data: string, options?: ParseOptions): LsEntry[] {
  */
 export function parseStreaming(
   lines: Iterable<string>,
-  options?: ParseOptions
+  options?: ParseOptions,
 ): Generator<LsStreamEntry, void, unknown> {
   return LsStreamingParser.parse(lines, options);
 }

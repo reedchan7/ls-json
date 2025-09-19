@@ -136,4 +136,55 @@ drwx------   2 user  user   4096 Sep 19 14:56 private_dir`;
     const groupOthers = result.find(entry => entry.filename === 'group_others.txt');
     expect(groupOthers?.mode).toBe('066'); // ----rw-rw- -> 066
   });
+
+  it("should hide . and .. entries by default", () => {
+    const lsOutputWithDots = `total 16
+drwxr-xr-x   3 user  user   4096 Sep 19 14:51 .
+drwxr-xr-x   5 user  user   8192 Sep 19 14:50 ..
+-rw-r--r--   1 user  user   1024 Sep 19 14:51 file.txt
+drwxr-xr-x   2 user  user   4096 Sep 19 14:52 subdir`;
+
+    const result = parse(lsOutputWithDots); // 默认 showDotsDir: false
+    console.log("Default (hide dots):", result.map(e => e.filename));
+    
+    expect(result).toBeDefined();
+    expect(result.length).toBe(2); // 只有 file.txt 和 subdir
+    
+    // 验证 . 和 .. 不存在
+    expect(result.find(entry => entry.filename === '.')).toBeUndefined();
+    expect(result.find(entry => entry.filename === '..')).toBeUndefined();
+    
+    // 验证其他文件存在
+    expect(result.find(entry => entry.filename === 'file.txt')).toBeDefined();
+    expect(result.find(entry => entry.filename === 'subdir')).toBeDefined();
+  });
+
+  it("should include . and .. entries when showDotsDir is true", () => {
+    const lsOutputWithDots = `total 16
+drwxr-xr-x   3 user  user   4096 Sep 19 14:51 .
+drwxr-xr-x   5 user  user   8192 Sep 19 14:50 ..
+-rw-r--r--   1 user  user   1024 Sep 19 14:51 file.txt
+drwxr-xr-x   2 user  user   4096 Sep 19 14:52 subdir`;
+
+    const result = parse(lsOutputWithDots, { showDotsDir: true });
+    console.log("Show dots:", result.map(e => e.filename));
+    
+    expect(result).toBeDefined();
+    expect(result.length).toBe(4); // . .. file.txt subdir
+    
+    // 验证 . 和 .. 存在
+    const dotEntry = result.find(entry => entry.filename === '.');
+    expect(dotEntry).toBeDefined();
+    expect(dotEntry?.type).toBe('directory');
+    expect(dotEntry?.mode).toBe('755');
+    
+    const dotdotEntry = result.find(entry => entry.filename === '..');
+    expect(dotdotEntry).toBeDefined();
+    expect(dotdotEntry?.type).toBe('directory');
+    expect(dotdotEntry?.mode).toBe('755');
+    
+    // 验证其他文件也存在
+    expect(result.find(entry => entry.filename === 'file.txt')).toBeDefined();
+    expect(result.find(entry => entry.filename === 'subdir')).toBeDefined();
+  });
 });
