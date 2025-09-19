@@ -1,0 +1,51 @@
+{
+  "name": "ls-json",
+  "version": "1.0.0",
+  "description": "parse ls output to json",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npx tsc && npx tsc --module esnext --outDir dist/esm && mv dist/esm/index.js dist/index.esm.js && rm -rf dist/esm",
+    "prepublishOnly": "pnpm run build",
+    "publish": "pnpm run prepublishOnly && pnpm publish --access public",
+    "start": "npx tsx ./index.ts",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "ls",
+    "json",
+    "parser",
+    "command-line",
+    "file-listing",
+    "jc",
+    "unix",
+    "linux",
+    "filesystem"
+  ],
+  "author": "Reed Chan <xinyuchen77@gmail.com>",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.17.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reedchan7/ls-json.git"
+  },
+  "homepage": "https://github.com/reedchan7/ls-json",
+  "bugs": {
+    "url": "https://github.com/reedchan7/ls-json/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
