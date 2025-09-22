@@ -45,28 +45,6 @@ Output:
 ```json
 [
   {
-    "filename": ".",
-    "flags": "drwxr-xr-x",
-    "links": 12,
-    "owner": "reedchan",
-    "group": "staff",
-    "size": 384,
-    "date": "Sep 19 14:51",
-    "mode": 755,
-    "type": "directory"
-  },
-  {
-    "filename": "..",
-    "flags": "drwxr-xr-x",
-    "links": 9,
-    "owner": "reedchan",
-    "group": "staff",
-    "size": 288,
-    "date": "Sep 19 14:16",
-    "mode": 755,
-    "type": "directory"
-  },
-  {
     "filename": "dist",
     "flags": "drwxr-xr-x",
     "links": 7,
