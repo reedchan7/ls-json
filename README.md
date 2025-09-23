@@ -49,7 +49,7 @@ drwxr-xr-x  12 user  staff    384 Sep 19 14:51 node_modules
 -rw-r--r--   1 user  staff    366 Sep 19 14:52 vitest.config.ts`;
 
 const result = parse(lsOutput);
-console.log(result);
+console.log(JSON.stringify(result));
 ```
 
 Output:
@@ -57,114 +57,114 @@ Output:
 ```json
 [
   {
-    filename: 'dist',
-    flags: 'drwxr-xr-x',
-    mode: '755',
-    type: 'directory',
-    owner: 'user',
-    group: 'staff',
-    size: 224,
-    date: 'Sep 19 14:35',
-    links: 7
+    "filename": "dist",
+    "flags": "drwxr-xr-x",
+    "mode": "755",
+    "type": "directory",
+    "owner": "user",
+    "group": "staff",
+    "size": 224,
+    "date": "Sep 19 14:35",
+    "links": 7
   },
   {
-    filename: 'index.spec.ts',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 2640,
-    date: 'Sep 19 14:51',
-    links: 1
+    "filename": "index.spec.ts",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 2640,
+    "date": "Sep 19 14:51",
+    "links": 1
   },
   {
-    filename: 'index.ts',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 13201,
-    date: 'Sep 19 15:10',
-    links: 1
+    "filename": "index.ts",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 13201,
+    "date": "Sep 19 15:10",
+    "links": 1
   },
   {
-    filename: 'LICENSE',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 11358,
-    date: 'Sep 19 14:40',
-    links: 1
+    "filename": "LICENSE",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 11358,
+    "date": "Sep 19 14:40",
+    "links": 1
   },
   {
-    filename: 'node_modules',
-    flags: 'drwxr-xr-x',
-    mode: '755',
-    type: 'directory',
-    owner: 'user',
-    group: 'staff',
-    size: 384,
-    date: 'Sep 19 14:51',
-    links: 12
+    "filename": "node_modules",
+    "flags": "drwxr-xr-x",
+    "mode": "755",
+    "type": "directory",
+    "owner": "user",
+    "group": "staff",
+    "size": 384,
+    "date": "Sep 19 14:51",
+    "links": 12
   },
   {
-    filename: 'package.json',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 1164,
-    date: 'Sep 19 14:51',
-    links: 1
+    "filename": "package.json",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 1164,
+    "date": "Sep 19 14:51",
+    "links": 1
   },
   {
-    filename: 'pnpm-lock.yaml',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 31149,
-    date: 'Sep 19 14:51',
-    links: 1
+    "filename": "pnpm-lock.yaml",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 31149,
+    "date": "Sep 19 14:51",
+    "links": 1
   },
   {
-    filename: 'README.md',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 1072,
-    date: 'Sep 19 14:40',
-    links: 1
+    "filename": "README.md",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 1072,
+    "date": "Sep 19 14:40",
+    "links": 1
   },
   {
-    filename: 'tsconfig.json',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 909,
-    date: 'Sep 19 14:51',
-    links: 1
+    "filename": "tsconfig.json",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 909,
+    "date": "Sep 19 14:51",
+    "links": 1
   },
   {
-    filename: 'vitest.config.ts',
-    flags: '-rw-r--r--',
-    mode: '644',
-    type: 'file',
-    owner: 'user',
-    group: 'staff',
-    size: 366,
-    date: 'Sep 19 14:52',
-    links: 1
+    "filename": "vitest.config.ts",
+    "flags": "-rw-r--r--",
+    "mode": "644",
+    "type": "file",
+    "owner": "user",
+    "group": "staff",
+    "size": 366,
+    "date": "Sep 19 14:52",
+    "links": 1
   }
 ]
 ```

@@ -73,7 +73,7 @@ drwxr-xr-x  12 user  staff   384B Sep 19 14:51 node_modules
 
   it("should parse ls output to json v2", () => {
     const result = parse(lsOutput2);
-    console.log(result);
+    console.log(JSON.stringify(result, null, 2));
     expect(result).toBeDefined();
   });
 
