@@ -1,6 +1,6 @@
 {
   "name": "ls-json",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "parse ls output to json",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -14,7 +14,6 @@
     "build": "npx tsc && npx tsc --module esnext --outDir dist/esm && mv dist/esm/index.js dist/index.esm.js && rm -rf dist/esm",
     "prettier": "npx prettier --write src/**/*.ts",
     "prepublishOnly": "pnpm run build",
-    "publish": "pnpm run prepublishOnly && pnpm publish --access public",
     "start": "npx tsx ./src/index.ts",
     "test": "vitest run"
   },
