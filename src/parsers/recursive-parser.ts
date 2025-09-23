@@ -12,30 +12,70 @@ import { LsUtils } from "../utils";
 class LsRecursiveOutputImpl implements LsRecursiveOutput {
   directories: LsRecursiveDirectory[];
   errors?: string[];
+  private depth: number | undefined;
 
-  constructor(directories: LsRecursiveDirectory[], errors?: string[]) {
+  constructor(
+    directories: LsRecursiveDirectory[],
+    errors?: string[],
+    depth?: number,
+  ) {
     this.directories = directories;
+    this.depth = depth;
     if (errors) {
       this.errors = errors;
     }
   }
 
+  /**
+   * Determines if an entry should be included based on path-based depth limiting.
+   *
+   * The depth parameter now controls the maximum path depth of returned entries:
+   * - depth=0: Only entries with path depth 0 (practically none, since min depth is 1)
+   * - depth=1: Only entries like /root/file.txt (path depth 1)
+   * - depth=2: Entries like /root/dir/file.txt (path depth 2) and shallower
+   * - etc.
+   *
+   * This differs from directory-level depth limiting by filtering individual
+   * entries based on their full path depth, not just which directories to parse.
+   */
+  private shouldIncludeEntry(entry: LsEntry): boolean {
+    if (this.depth === undefined || this.depth < 0) {
+      return true; // No depth limit
+    }
+
+    // Calculate the full path depth for this entry
+    const fullPath = entry.parent
+      ? `${entry.parent}/${entry.filename}`
+      : entry.filename;
+    const pathParts = fullPath.split("/").filter((part) => part !== "");
+    const entryDepth = pathParts.length - 1; // depth 0 = root level
+
+    return entryDepth <= this.depth;
+  }
+
   getAllEntries(): LsEntry[] {
     const allEntries: LsEntry[] = [];
     for (const dir of this.directories) {
-      allEntries.push(...dir.entries);
+      const filteredEntries = dir.entries.filter((entry) =>
+        this.shouldIncludeEntry(entry),
+      );
+      allEntries.push(...filteredEntries);
     }
     return allEntries;
   }
 
   getEntriesByPath(path: string): LsEntry[] | undefined {
     const dir = this.directories.find((d) => d.path === path);
-    return dir?.entries;
+    if (!dir) return undefined;
+    return dir.entries.filter((entry) => this.shouldIncludeEntry(entry));
   }
 
   findEntry(predicate: (entry: LsEntry) => boolean): LsEntry | undefined {
     for (const dir of this.directories) {
-      const found = dir.entries.find(predicate);
+      const filteredEntries = dir.entries.filter((entry) =>
+        this.shouldIncludeEntry(entry),
+      );
+      const found = filteredEntries.find(predicate);
       if (found) return found;
     }
     return undefined;
@@ -44,7 +84,10 @@ class LsRecursiveOutputImpl implements LsRecursiveOutput {
   filterEntries(predicate: (entry: LsEntry) => boolean): LsEntry[] {
     const filtered: LsEntry[] = [];
     for (const dir of this.directories) {
-      filtered.push(...dir.entries.filter(predicate));
+      const depthFilteredEntries = dir.entries.filter((entry) =>
+        this.shouldIncludeEntry(entry),
+      );
+      filtered.push(...depthFilteredEntries.filter(predicate));
     }
     return filtered;
   }
@@ -53,7 +96,10 @@ class LsRecursiveOutputImpl implements LsRecursiveOutput {
     callback: (entry: LsEntry, directory: LsRecursiveDirectory) => void,
   ): void {
     for (const dir of this.directories) {
-      for (const entry of dir.entries) {
+      const filteredEntries = dir.entries.filter((entry) =>
+        this.shouldIncludeEntry(entry),
+      );
+      for (const entry of filteredEntries) {
         callback(entry, dir);
       }
     }
@@ -62,7 +108,10 @@ class LsRecursiveOutputImpl implements LsRecursiveOutput {
   getDirectoryTree(): Record<string, LsEntry[]> {
     const tree: Record<string, LsEntry[]> = {};
     for (const dir of this.directories) {
-      tree[dir.path] = dir.entries;
+      const filteredEntries = dir.entries.filter((entry) =>
+        this.shouldIncludeEntry(entry),
+      );
+      tree[dir.path] = filteredEntries;
     }
     return tree;
   }
@@ -86,7 +135,7 @@ export class LsRecursiveParser {
     const { raw = false, showDotsDir = false, depth } = options;
 
     if (!LsUtils.hasData(data)) {
-      return new LsRecursiveOutputImpl([]);
+      return new LsRecursiveOutputImpl([], undefined, depth);
     }
 
     const directories: LsRecursiveDirectory[] = [];
@@ -121,7 +170,7 @@ export class LsRecursiveParser {
           directories.push(currentDirectory);
         }
 
-        // Check depth limit
+        // Check depth limit for directory parsing
         const newPath = dirMatch[1]!;
         // Count the actual directory levels (empty string before first / doesn't count)
         const pathParts = newPath.split("/").filter((part) => part !== "");
@@ -198,6 +247,7 @@ export class LsRecursiveParser {
     return new LsRecursiveOutputImpl(
       directories,
       globalErrors.length > 0 ? globalErrors : undefined,
+      depth,
     );
   }
 

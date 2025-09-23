@@ -1086,19 +1086,21 @@ drwxr-xr-x 2 root root 4096 2009-01-01 00:00 ..
       expect(paths).not.toContain('/root/level1-b');
     });
 
-    it("should include root files", () => {
+    it("should exclude all file entries (path depth > 0)", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 0 });
       
-      const rootEntries = result.getEntriesByPath('/root');
-      const filenames = rootEntries!.map(e => e.filename);
+      // With path-based depth limiting, depth=0 means only paths with depth 0
+      // Since file entries have minimum path depth of 1 (/root/file.txt), 
+      // no file entries should be returned
+      const allEntries = result.getAllEntries();
+      expect(allEntries).toHaveLength(0);
       
-      expect(filenames).toContain('root-file.txt');
-      expect(filenames).toContain('level1-a');
-      expect(filenames).toContain('level1-b');
+      const rootEntries = result.getEntriesByPath('/root');
+      expect(rootEntries).toHaveLength(0);
     });
   });
 
-  describe("depth = 1 (root + level1)", () => {
+  describe("depth = 1 (path depth ≤ 1)", () => {
     it("should include root and level1 directories", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 1 });
       
@@ -1113,18 +1115,26 @@ drwxr-xr-x 2 root root 4096 2009-01-01 00:00 ..
       expect(paths).not.toContain('/root/level1-b/level2-b');
     });
 
-    it("should include level1 files", () => {
+    it("should only include entries with path depth ≤ 1", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 1 });
       
-      const level1aEntries = result.getEntriesByPath('/root/level1-a');
-      const level1aFilenames = level1aEntries!.map(e => e.filename);
+      const allEntries = result.getAllEntries();
+      const allFilenames = allEntries.map(e => e.filename);
       
-      expect(level1aFilenames).toContain('level1-a-file.txt');
-      expect(level1aFilenames).toContain('level2-a');
+      // Path depth 1: /root/file.txt, /root/level1-a, /root/level1-b
+      expect(allFilenames).toContain('root-file.txt');
+      expect(allFilenames).toContain('level1-a');
+      expect(allFilenames).toContain('level1-b');
+      
+      // Path depth 2: should NOT be included
+      expect(allFilenames).not.toContain('level1-a-file.txt');
+      expect(allFilenames).not.toContain('level2-a');
+      expect(allFilenames).not.toContain('level1-b-file.txt');
+      expect(allFilenames).not.toContain('level2-b');
     });
   });
 
-  describe("depth = 2 (root + level1 + level2)", () => {
+  describe("depth = 2 (path depth ≤ 2)", () => {
     it("should include root, level1, and level2 directories", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 2 });
       
@@ -1140,18 +1150,31 @@ drwxr-xr-x 2 root root 4096 2009-01-01 00:00 ..
       expect(paths).not.toContain('/root/level1-a/level2-a/level3-a');
     });
 
-    it("should include level2 files", () => {
+    it("should only include entries with path depth ≤ 2", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 2 });
       
-      const level2aEntries = result.getEntriesByPath('/root/level1-a/level2-a');
-      const level2aFilenames = level2aEntries!.map(e => e.filename);
+      const allEntries = result.getAllEntries();
+      const allFilenames = allEntries.map(e => e.filename);
       
-      expect(level2aFilenames).toContain('level2-a-file.txt');
-      expect(level2aFilenames).toContain('level3-a');
+      // Path depth 1: /root/*
+      expect(allFilenames).toContain('root-file.txt');
+      expect(allFilenames).toContain('level1-a');
+      expect(allFilenames).toContain('level1-b');
+      
+      // Path depth 2: /root/level1-*/*
+      expect(allFilenames).toContain('level1-a-file.txt');
+      expect(allFilenames).toContain('level2-a');
+      expect(allFilenames).toContain('level1-b-file.txt');
+      expect(allFilenames).toContain('level2-b');
+      
+      // Path depth 3: should NOT be included
+      expect(allFilenames).not.toContain('level2-a-file.txt');
+      expect(allFilenames).not.toContain('level3-a');
+      expect(allFilenames).not.toContain('level2-b-file.txt');
     });
   });
 
-  describe("depth = 3 (all levels)", () => {
+  describe("depth = 3 (path depth ≤ 3)", () => {
     it("should include all directories", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 3 });
       
@@ -1165,18 +1188,30 @@ drwxr-xr-x 2 root root 4096 2009-01-01 00:00 ..
       expect(paths).toContain('/root/level1-a/level2-a/level3-a');
     });
 
-    it("should include all files at all levels", () => {
+    it("should include entries with path depth ≤ 3, exclude depth 4", () => {
       const result = parse(deepRecursiveOutput, { recursive: true, depth: 3 });
       
       const allEntries = result.getAllEntries();
       const allFilenames = allEntries.map(e => e.filename);
       
+      // Path depth 1: /root/*
       expect(allFilenames).toContain('root-file.txt');
+      expect(allFilenames).toContain('level1-a');
+      expect(allFilenames).toContain('level1-b');
+      
+      // Path depth 2: /root/level1-*/*  
       expect(allFilenames).toContain('level1-a-file.txt');
+      expect(allFilenames).toContain('level2-a');
       expect(allFilenames).toContain('level1-b-file.txt');
+      expect(allFilenames).toContain('level2-b');
+      
+      // Path depth 3: /root/level1-*/level2-*/*
       expect(allFilenames).toContain('level2-a-file.txt');
+      expect(allFilenames).toContain('level3-a');
       expect(allFilenames).toContain('level2-b-file.txt');
-      expect(allFilenames).toContain('level3-a-file.txt');
+      
+      // Path depth 4: should NOT be included
+      expect(allFilenames).not.toContain('level3-a-file.txt');
     });
   });
 
@@ -1212,12 +1247,13 @@ drwxr-xr-x 2 root root 4096 2009-01-01 00:00 ..
         showDotsDir: true 
       });
       
+      // With path-based depth limiting, depth=0 excludes all file entries
+      // since minimum path depth is 1, even with showDotsDir=true
       const rootEntries = result.getEntriesByPath('/root');
-      const filenames = rootEntries!.map(e => e.filename);
+      expect(rootEntries).toHaveLength(0);
       
-      expect(filenames).toContain('.');
-      expect(filenames).toContain('..');
-      expect(filenames).toContain('root-file.txt');
+      const allEntries = result.getAllEntries();
+      expect(allEntries).toHaveLength(0);
     });
   });
 
@@ -1279,11 +1315,13 @@ total 4
         traversedPaths.push(directory.path);
       });
       
-      // Should only have entries from depth 0 and 1 directories
+      // With path-based depth limiting, only entries with path depth ≤ 1 are included
+      // These entries come from /root directory only
       const uniquePaths = [...new Set(traversedPaths)];
       expect(uniquePaths).toContain('/root');
-      expect(uniquePaths).toContain('/root/level1-a');
-      expect(uniquePaths).toContain('/root/level1-b');
+      // Should NOT contain deeper directories since their entries are filtered out
+      expect(uniquePaths).not.toContain('/root/level1-a');
+      expect(uniquePaths).not.toContain('/root/level1-b');
       expect(uniquePaths).not.toContain('/root/level1-a/level2-a');
     });
 
@@ -1296,10 +1334,12 @@ total 4
       
       const filePaths = txtFiles.map(f => `${f.parent}/${f.filename}`);
       
-      // Should include files from depth 0 and 1, but not deeper
-      expect(filePaths).toContain('/root/root-file.txt');
-      expect(filePaths).toContain('/root/level1-a/level1-a-file.txt');
-      expect(filePaths).toContain('/root/level1-b/level1-b-file.txt');
+      // With path-based depth limiting, only path depth ≤ 1 files are included
+      expect(filePaths).toContain('/root/root-file.txt'); // path depth = 1
+      
+      // These have path depth = 2, should NOT be included
+      expect(filePaths).not.toContain('/root/level1-a/level1-a-file.txt');
+      expect(filePaths).not.toContain('/root/level1-b/level1-b-file.txt');
       expect(filePaths).not.toContain('/root/level1-a/level2-a/level2-a-file.txt');
     });
   });

@@ -333,18 +333,20 @@ export interface ParseOptions {
   recursive?: boolean;
 
   /**
-   * Maximum directory depth for recursive parsing.
+   * Maximum path depth for entries in recursive parsing results.
    *
-   * Only applies when recursive is true. Limits how deep into the
-   * directory hierarchy the parser will process:
+   * Only applies when recursive is true. Controls which entries are included
+   * in the final results based on their full path depth:
    *
-   * - `0`: Only root level directories
-   * - `1`: Root level + 1 level deep (e.g., /home and /home/user)
-   * - `2`: Root level + 2 levels deep, etc.
-   * - `undefined` or negative values: No depth limit (process all levels)
+   * - `0`: Only entries with path depth 0 (practically none, since min depth is 1)
+   * - `1`: Only entries like `/root/file.txt` (path depth 1)
+   * - `2`: Only entries like `/root/dir/file.txt` (path depth 2) and shallower
+   * - `3`: Entries with path depth ≤ 3, etc.
+   * - `undefined` or negative values: No depth limit (include all entries)
    *
-   * This is useful for performance when you only need shallow directory
-   * information or want to avoid processing deep nested structures.
+   * This filters individual file/directory entries based on their complete path depth,
+   * allowing precise control over which parts of the directory tree are returned.
+   * Useful for performance and focusing on specific directory levels.
    *
    * @default undefined (no limit)
    */
