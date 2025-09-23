@@ -1,5 +1,7 @@
 import { LsParser, LsRecursiveParser, LsStreamingParser } from "./parsers";
 import {
+  LsEntry,
+  LsRecursiveOutput,
   LsStreamEntry,
   ParseOptions,
   ParseResult,
@@ -33,16 +35,32 @@ export * from "./types";
  * const result = parse(lsRecursiveOutput, { recursive: true, depth: 2 });
  * ```
  */
+// Function overloads for proper type inference
+export function parse(data: string): LsEntry[];
+export function parse(
+  data: string,
+  options: ParseOptions & { recursive: true }
+): LsRecursiveOutput;
+export function parse(
+  data: string,
+  options: ParseOptions & { recursive?: false | undefined }
+): LsEntry[];
 export function parse<T extends ParseOptions>(
   data: string,
   options?: T,
-): ParseResult<T> {
-  const opts = options || ({} as T);
+): ParseResult<T>;
+
+// Implementation
+export function parse(
+  data: string,
+  options?: ParseOptions,
+): LsEntry[] | LsRecursiveOutput {
+  const opts = options || ({} as ParseOptions);
 
   if (opts.recursive) {
-    return LsRecursiveParser.parse(data, opts) as ParseResult<T>;
+    return LsRecursiveParser.parse(data, opts);
   } else {
-    return LsParser.parse(data, opts) as ParseResult<T>;
+    return LsParser.parse(data, opts);
   }
 }
 

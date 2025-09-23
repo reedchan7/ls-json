@@ -6,6 +6,7 @@ A powerful TypeScript library to parse `ls` and `ls -R` output into structured J
 
 ## ✨ Features
 
+- **🚀 Zero Dependencies** - Pure TypeScript implementation with no external dependencies for maximum compatibility and minimal bundle size
 - **📁 Standard ls parsing** - Parse regular `ls -l` output into structured data
 - **🔄 Recursive ls parsing** - Parse `ls -R` output with powerful traversal methods
 - **⚡ Streaming support** - Process large ls outputs efficiently
@@ -29,8 +30,6 @@ pnpm add ls-json
 
 ### Basic Usage
 
-### Example 1
-
 ```typescript
 import { parse } from "ls-json";
 
@@ -38,15 +37,7 @@ const lsOutput = `total 160
 drwxr-xr-x  12 user  staff    384 Sep 19 14:51 .
 drwxr-xr-x   9 user  staff    288 Sep 19 14:16 ..
 drwxr-xr-x   7 user  staff    224 Sep 19 14:35 dist
--rw-r--r--   1 user  staff   2640 Sep 19 14:51 index.spec.ts
--rw-r--r--   1 user  staff  13201 Sep 19 15:10 index.ts
--rw-r--r--   1 user  staff  11358 Sep 19 14:40 LICENSE
-drwxr-xr-x  12 user  staff    384 Sep 19 14:51 node_modules
--rw-r--r--   1 user  staff   1164 Sep 19 14:51 package.json
--rw-r--r--   1 user  staff  31149 Sep 19 14:51 pnpm-lock.yaml
--rw-r--r--   1 user  staff   1072 Sep 19 14:40 README.md
--rw-r--r--   1 user  staff    909 Sep 19 14:51 tsconfig.json
--rw-r--r--   1 user  staff    366 Sep 19 14:52 vitest.config.ts`;
+-rw-r--r--   1 user  staff   2640 Sep 19 14:51 index.spec.ts`;
 
 const result = parse(lsOutput);
 console.log(JSON.stringify(result, null, 2));
@@ -77,111 +68,8 @@ Output:
     "size": 2640,
     "date": "Sep 19 14:51",
     "links": 1
-  },
-  {
-    "filename": "index.ts",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 13201,
-    "date": "Sep 19 15:10",
-    "links": 1
-  },
-  {
-    "filename": "LICENSE",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 11358,
-    "date": "Sep 19 14:40",
-    "links": 1
-  },
-  {
-    "filename": "node_modules",
-    "flags": "drwxr-xr-x",
-    "mode": "755",
-    "type": "directory",
-    "owner": "user",
-    "group": "staff",
-    "size": 384,
-    "date": "Sep 19 14:51",
-    "links": 12
-  },
-  {
-    "filename": "package.json",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 1164,
-    "date": "Sep 19 14:51",
-    "links": 1
-  },
-  {
-    "filename": "pnpm-lock.yaml",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 31149,
-    "date": "Sep 19 14:51",
-    "links": 1
-  },
-  {
-    "filename": "README.md",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 1072,
-    "date": "Sep 19 14:40",
-    "links": 1
-  },
-  {
-    "filename": "tsconfig.json",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 909,
-    "date": "Sep 19 14:51",
-    "links": 1
-  },
-  {
-    "filename": "vitest.config.ts",
-    "flags": "-rw-r--r--",
-    "mode": "644",
-    "type": "file",
-    "owner": "user",
-    "group": "staff",
-    "size": 366,
-    "date": "Sep 19 14:52",
-    "links": 1
   }
 ]
-```
-
-### Example 2
-
-```typescript
-import { parse } from "ls-json";
-
-const lsOutput = `total 16
--rw-r--r-- 1 user user 1024 Sep 19 14:51 package.json
-drwxr-xr-x 2 user user 4096 Sep 19 14:52 src`;
-
-const result = parse(lsOutput);
-console.log(result[0].filename); // "package.json"
-console.log(result[0].type); // "file"
-console.log(result[0].size); // 1024
 ```
 
 ### Recursive Directory Parsing
