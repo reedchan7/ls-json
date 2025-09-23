@@ -49,7 +49,7 @@ drwxr-xr-x  12 user  staff    384 Sep 19 14:51 node_modules
 -rw-r--r--   1 user  staff    366 Sep 19 14:52 vitest.config.ts`;
 
 const result = parse(lsOutput);
-console.log(JSON.stringify(result));
+console.log(JSON.stringify(result, null, 2));
 ```
 
 Output:
