@@ -1,6 +1,6 @@
 {
-  "include": ["*.ts", "**/*.spec.ts", "**/*.test.ts"],
-  "exclude": ["dist", "node_modules"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules", "vitest.config.ts"],
   "compilerOptions": {
     "target": "es2022",
     "lib": ["es2022", "dom"],
@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
+    "rootDir": "./src",
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
